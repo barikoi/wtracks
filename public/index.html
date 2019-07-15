@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="shortcut icon" href="img/favicon.ico" />
+  <meta charset='utf-8'>
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,height=device-height, user-scalable=no" />
+  <meta name="keywords" content="Leaflet, OpenStreetMap, GPX editor, GPS, Tracks, Trails, GIS, outdoor">
+  <meta name="description" content="Online GPX multi-segment track editor for outdoor activities">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+    style-src 'self' 'unsafe-inline' https://cdn.rawgit.com https://cdnjs.cloudflare.com https://fonts.googleapis.com;
+    script-src 'self' https://cdn.rawgit.com https://cdnjs.cloudflare.com https://extreme-ip-lookup.com https://www.dropbox.com https://www.google-analytics.com https://maps.googleapis.com;
+    font-src https://fonts.gstatic.com https://fonts.googleapis.com;
+    connect-src *;
+    img-src * data:;
+    worker-src 'self';
+    child-src 'none';
+    object-src 'none'">
+  <link rel="manifest" href="./manifest.json">
+  <title class="appname">WTracks</title>
+
+  <link rel="stylesheet" href="css/leaflet.css" />
+
+  <script type="text/javascript" src="js/cookieconsent.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/leaflet.js"></script>
+  <script src="js/leaflet.wmts.js"></script>
+
+  <!-- Google Material design fonts -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="css/trumbowyg.min.css">
+  <script src="js/trumbowyg.min.js"></script>
+
+  <script src="js/Leaflet.Editable.js"></script>
+
+  <!-- File upload -->
+  <script src="js/togeojson.js"></script>
+  <script src="js/leaflet.filelayer.js"></script>
+
+  <!-- FileSaver -->
+  <script src="js/FileSaver.js"></script>
+
+  <!-- Routing Machine -->
+  <script src="js/leaflet-routing-machine.js"></script>
+  <script src="js/lrm-graphhopper.js"></script>
+
+  <!-- Elevation -->
+  <script src="js/d3.v3.min.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="css/Leaflet.Elevation-0.0.4.css" />
+  <script type="text/javascript" src="js/Leaflet.Elevation-0.0.4.js"></script>
+
+  <!-- Geo search -->
+  <link rel="stylesheet" href="css/l.geosearch.css" />
+  <script src="js/l.control.geosearch.js"></script>
+  <script src="js/l.geosearch.provider.openstreetmap.js"></script>
+
+  <script src="js/leaflet.polyprune.js"></script>
+  <script src="js/leaflet.polytrim.js"></script>
+  <script src="js/leaflet.polystats.js"></script>
+
+  <script src="js/pasteslib.js"></script>
+  <!-- crypto functions -->
+  <script src="js/encdec.js"></script>
+
+  <script src="js/jscolor.min.js"></script>
+  <script type="text/javascript" id="dropboxjs" data-app-key=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropbox.js/0.10.2/dropbox.min.js"></script>
+  <link rel="stylesheet" href="css/wtracks.css" />
+</head>
+
+<body>
+  <div id="menu" class="overlay">
+    <div class="box-header"><a id="menu-close" href="#" class="close-button">×</a></div>
+    <ul class="menutab">
+      <li><a href="#" class="tablinks" id="tabfile">File</a></li>
+      <li><a href="#" class="tablinks" id="tabtools">Tools</a></li>
+      <li><a href="#" class="tablinks" id="tabsettings">Settings</a></li>
+      <li><a href="#" class="tablinks" id="tababout">About</a></li>
+    </ul>
+    <table id="menufile">
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-file-closed material-icons" id="file-newtrk-closed">&#xE5CC;</span>
+            <span class="fold-file newtrk material-icons">&#xE5CF;</span>
+            <span  class="fold fold-link fold-file" id="file-newtrk">New</span>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-file newtrk">
+        <td>
+          <button id="track-new" title="Start a new track from scratch">New Track</button>
+        </td>
+        <td>
+          Discard current editor content and start a new track
+        </td>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-file-closed material-icons" id="file-load-closed">&#xE5CC;</span>
+            <span class="fold-file load material-icons">&#xE5CF;</span>
+            <span  class="fold fold-link fold-file" id="file-load">Load</span>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder nobottomborder fold-file load">
+        <td>
+          <span>Options</span>
+        </td>
+        <td>
+          <label><input type="checkbox" id="merge"/>Merge</label>
+          <span id="mergetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="mergetxt-help" class="help-p">
+            Current edited track will not be discarded, it will be extended with the loaded one.
+          </p>
+          <br/>
+          <label><input type="checkbox" id="joinonload"/>Join segments</label>
+          <span id="joinonloadtxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="joinonloadtxt-help" class="help-p">
+            If loaded track contains multiple segments, they will automatically be joined.
+          </p>
+        </td>
+      </tr>
+      <tr class="nobottomborder notopborder fold-file load">
+        <td>
+        </td>
+        <td>
+          File type:
+          <select id="track-ext">
+            <option value="auto">Auto</option>
+            <option value="gpx">GPX</option>
+            <option value="kml">KML</option>
+            <option value="geojson">GeoJson</option>
+          </select>
+          <span id="filetypetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="filetypetxt-help" class="help-p">
+            If "Auto" is selected, the type of the file is selected based on the file extension.
+          </p>
+        </td>
+      </tr>
+      <tr class="nobottomborder notopborder fold-file load">
+        <td>
+          <label id="track-upload-label">
+            <input type="file" name="track" id="track-upload" multiple="multiple" accept=".gpx,.kml,.geojson"/>
+            <span>File</span>
+          </label>
+        </td>
+        <td>
+          Open a file from your device<br/>
+        </td>
+      </tr>
+      <tr class="nobottomborder notopborder fold-file load">
+        <td>
+          <button id="track-get" title="Load a file from the internet">
+            Get from:
+          </button>
+        </td>
+        <td>
+          <input id="track-get-url" placeholder="https://... (track URL)" type="url" /><br/>
+          <label><input id="noproxy" type="checkbox" /> No proxy </label>
+          <span id="noproxytxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="noproxytxt-help" class="help-p">
+            Load without going through a CORS proxy. Check if target server accepts cross-origin requests, and if you want to use your browser session to fecth the file.
+          </p>
+        </td>
+      </tr>
+      <tr class="notopborder fold-file load">
+        <td>
+          <button id="dropbox-chooser" title="Load a track from your Dropbox">
+            <span class="dropbox-logo"></span>
+              Dropbox
+          </button>
+        </td>
+        <td>
+          Load from your Dropbox
+        </td>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-file-closed material-icons" id="file-save-closed">&#xE5CC;</span>
+            <span class="fold-file save material-icons">&#xE5CF;</span>
+            <span  class="fold fold-link fold-file" id="file-save">Save</span>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder nobottomborder fold-file save">
+        <td>
+          <button id="track-download" title="Download as a GPX file">
+            As File
+          </button>
+          <br/>
+          <button id="dropbox-saver" title="Save track in your Dropbox">
+            <span dropbox-logo="dropbox-logo"></span>
+              Dropbox
+          </button>
+        </td>
+        <td>
+          Download as a GPX file<br/>
+          <label><input type="checkbox" id="as-route"/>As route</label>
+          <span id="routetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="routetxt-help" class="help-p">
+            Check to save the track as a GPX route, instead of a GPX track segment.
+          </p>
+          <br/>
+          <!-- Don't know what this is useful for...
+          <label><input type="checkbox" id="nometadata"/>Without metadata</label>
+          <span id="nometadatatxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="nometadatatxt-help" class="help-p">
+            Check to save without GPX metadata.
+          </p>
+          <br/>
+          -->
+          <label><input type="checkbox" id="savetiming"/>Save computed times</label>
+          <span id="savetimingtxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="savetimingtxt-help" class="help-p">
+            Check to save in the GPX the timings computed by WTracks and displayed in the bottom banner of the page. Note that it will override any potential timing you may have previously recorded for this track.
+          </p>
+        </td>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-file-closed material-icons" id="file-share-closed">&#xE5CC;</span>
+            <span class="fold-file share material-icons">&#xE5CF;</span>
+            <span class="fold fold-link fold-file" id="file-share">Share</span>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-file share">
+        <td>
+          <button id="track-share" title="Share through a link">
+            Share
+          </button>
+        </td>
+        <td>
+          Share current track
+        </td>
+      </tr>
+    </table>
+    <table id="menutools">
+      <tr>
+        <td>
+          <button id="compress" class="no-trim">Compress</button>
+        </td>
+        <td>
+          Remove track points within a <input id="prunedist" type="text" size="2" value="5" />
+          <span class="distUnit"></span>s band
+          <span id="compresstxt" class="help-b material-icons" title="Help">&#xE8FD;</span><br/>
+          <label><input id="prunealt" type="checkbox" checked="checked"/>Consider altitude distance</label>
+          <p id="compresstxt-help" class="help-p">
+            Reduces track size without significantly changing track shape.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="elevate" class="no-trim">Elevate</button>
+        </td>
+        <td>
+          Add altitude information
+          <span id="elevatetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="elevatetxt-help" class="help-p">
+            Uses external web service to get elevation of track points.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="cleanup" class="no-trim">Clean-up</button>
+        </td>
+        <td>
+          Delete selected track data:
+          <span id="cleanuptxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <br/>
+          <label><input id="cleanupalt" type="checkbox"/>Altitude</label>
+          <label><input id="cleanuptime" type="checkbox"/>Recorded time</label>
+          <p id="cleanuptxt-help" class="help-p">
+            Delete elevation and/or GPS-recorded time data on each track point.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="revert" class="no-trim">Revert</button>
+        </td>
+        <td>
+          Revert track direction
+          <span id="reverttxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="reverttxt-help" class="help-p">
+            Inverts all track points so that start of the track becomes the end.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="join" class="no-trim">Join segments</button>
+        </td>
+        <td>
+          Combine segments
+          <span id="jointxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="jointxt-help" class="help-p">
+            Removes separation between all track segments in the editor.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <select id="trim-type">
+            <option>Trim start</option>
+            <option>Trim end</option>
+          </select>
+        </td>
+        <td>
+          <input type="range" id="trim-range" min="0" step="1" value="0" />&nbsp;<span id="trim-txt"></span>
+          <span id="trimtxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+          <p id="trimtxt-help" class="help-p">
+            Move cursor to delete points from the start or the end of the track.
+          </p>
+        </td>
+      </tr>
+    </table>
+    <table id="menusettings">
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-settings-closed material-icons" id="settings-savstg-closed">&#xE5CC;</span>
+            <span class="fold-settings savstg material-icons">&#xE5CF;</span>
+            <span  class="fold fold-link fold-settings" id="settings-savstg">Remember me</span>
+            <span id="cfgsavetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="cfgsavetxt-help" class="help-p">
+              Your WTracks editor status will be saved continuously in your browser local storage,
+              so that when you close and reopen it later it will restore the same content and settings.
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-settings savstg">
+        <td>
+          <input id="cfgsave" class="no-trim" type="checkbox" />
+        </td>
+        <td>
+          <label for="cfgsave">Locally save editor's state between sessions</label>
+          <br/>
+          Privacy warning: state is shared with all users of this browser profile
+          <br />
+          <button id="save-state-file" class="state-file">Export</button>
+          <label id="state-load-label" class="state-file">
+            <input type="file" name="track" id="load-state-file" class="state-file">
+            <span>Import</span>
+          </label>
+        </td>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-settings-closed material-icons" id="settings-trkstg-closed">&#xE5CC;</span>
+            <span class="fold-settings trkstg material-icons">&#xE5CF;</span>
+            <span  class="fold fold-link fold-settings" id="settings-trkstg">Track display options</span>
+            <span id="trkopts" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="trkopts-help" class="help-p">
+              Configure the color and width of your track on the map.
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-settings trkstg">
+        <td>
+        </td>
+        <td>
+          <div>
+            <span class="setting-name">Segment Type:</span>
+            <label><input name="track-type" type="radio" value="trk" checked="checked"/> Edited</label>
+            <label><input name="track-type" type="radio" value="ovl"/> Others</label>
+          </div>
+          <div>
+            <span class="setting-name">Color:</span>
+            <button id="track-color-picker" class='material-icons symbol setting-value jscolor {"valueElement":"track-color", "hash":true, "zIndex":10001}'>
+              colorize
+            </button>
+            <input id="track-color" class="hidden"/>
+          </div>
+          <div>
+            <span class="setting-name">Weight:</span>
+            <input type="range" min="0" max="10" id="track-weight" class="setting-value"/>
+            <span id="track-weight-v" class="setting-value"></span>
+          </div>
+          <div>
+            <span class="setting-name">&nbsp;</span>
+            <button id="track-resetcolorweight" class="setting-value">Reset</button>
+          </div>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-settings-closed material-icons" id="settings-apistg-closed">&#xE5CC;</span>
+            <span class="fold-settings apistg material-icons" id="apistg2">&#xE5CF;</span>
+            <span  class="fold fold-link fold-settings" id="settings-apistg">API keys</span>
+            <span id="keystxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="keystxt-help" class="help-p">
+              Set your own API keys to bypass WTracks quota limits.
+              Keys will be stored in your browser. Do not use or click "Reset"
+              if you're not sure about how to use this.
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-settings apistg">
+        <td>
+        </td>
+        <td>
+          <div>
+            <span class="setting-name">GraphHopper:</span>
+            <input id="ghkey-chk" class="no-trim" type="checkbox" />
+            <input id="ghkey-value" placeholder="Your GraphHopper key" class="setting-input" />
+            <span id="ghkeytxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="ghkeytxt-help" class="help-p">
+              This key is used for the routing feature, which draws tracks along map roads.
+              Get your API key from <a target="_blank" href="https://graphhopper.com/">GraphHopper</a>.
+            </p>
+          </div>
+          <div>
+            <span class="setting-name">Google:</span>
+            <input id="ggkey-chk" class="no-trim" type="checkbox" />
+            <input id="ggkey-value" placeholder="Your Google API key" class="setting-input" />
+            <span id="ggkeytxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="ggkeytxt-help" class="help-p">
+              This key is used for the Google Elevation service, which gets the elevation of each track point.
+              For this setting to be effective, check the "save editor state" option above and reload the page.
+              Get your API key from <a target="_blank" href="https://console.developers.google.com/apis">Google Developers Console</a>.
+            </p>
+          </div>
+          <div>
+            <span class="setting-name">&nbsp;</span>
+            <button id="keys-reset" class="setting-value">Reset</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="nobottomborder">
+        <td colspan="2">
+          <div>
+            <span class="fold fold-settings-closed material-icons" id="settings-unitstg-closed">&#xE5CC;</span>
+            <span class="fold-settings unitstg material-icons" id="unitstg2">&#xE5CF;</span>
+            <span  class="fold fold-link fold-settings" id="settings-unitstg">Unit of length</span>
+            <span id="unittxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+            <p id="unittxt-help" class="help-p">
+              Choose between imperial and metric unit of length.
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr class="notopborder fold-settings unitstg">
+        <td>
+        </td>
+        <td>
+          <div>
+            <label>
+              <input type="radio" value="0" name="unitopt"/>
+              Metric
+            </label>
+            <label>
+              <input type="radio" value="1" name="unitopt"/>
+              Imperial
+            </label>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <table id="menuabout">
+      <tr>
+        <td>
+          <img id="about-logo" src="img/wtracks-icon-1x.png" alt="WTracks logo" />
+        </td>
+        <td>
+          <p><span class="appname">WTracks</span> by <a id="email" href="#">Olivier Potonniée</a></p>
+          <p>
+            <a href="https://github.com/opoto/wtracks" target="_blank" title="WTracks project on Github" id="github-logo">
+            <svg height="24" viewBox="0 0 16 16" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+          </a>
+            Open source project on <a href="https://github.com/opoto/wtracks" target="_blank" title="WTracks project on Github">GitHub</a>.
+          </p>
+          <p>Check <a href="doc/" target="_blank">documentation</a> for application features and details. You can also join the <a target="_blank" href="https://groups.google.com/forum/#!forum/wtracks">online forum</a> to share questions and hints with other WTracks users</p>
+          <p>WTracks is free to use <i class="material-icons">&#xE7F2;</i> But not to operate <i class="material-icons">&#xE7F3;</i></p>
+          <p>Feel free to donate to help maintaining this service:</p>
+          <p><a href="https://paypal.me/WTracks/2" target="_blank" id="donate"><img src="img/donate-paypal.png" alt="donate with PayPal"/></a></p>
+          <p><i class="material-icons">&#xE002;</i> Do not check the 'goods and services' option in paypal, you would pay useless fees.</p>
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+  <!-- Prompt box -->
+  <div id="prompt" class="modal overlay">
+    <!-- Modal content -->
+    <div class="prompt-content">
+      <table>
+        <tr>
+          <th colspan="2">Enter track details</th>
+        </tr>
+        <tr>
+          <td>Name: </td>
+          <td><input id="prompt-name" type="text" size="50" value="" /></td>
+        </tr>
+        <tr>
+          <td>Description: </td>
+          <td><textarea id="prompt-desc"></textarea></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <button id="prompt-ok" class="ok-btn">Ok</button>
+            <button id="prompt-cancel" class="cancel-btn">Cancel</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Share track box box -->
+  <div id="wtshare-box" class= "modal overlay">
+    <!-- Modal content -->
+    <div class="prompt-content">
+      <div class="box-header"><a id="wtshare-box-close" href="#" class="close-button">×</a></div>
+      <div id="wtshare-ask">
+        <p>
+          Sharing will anonymously upload your track to the cloud and provide you a shareable link to reopen it.
+          <span id="sharetxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+        </p>
+        <p id="sharetxt-help" class="help-p">
+          Your track will be stored on a third-party server
+          (<a id="wtshare-web" href="#" target="_blank"><span id="wtshare-name"></span></a>)
+          without any guarantee of availability.
+          Make sure to keep a copy of the file on your own.
+        </p>
+        <div>
+          <table>
+            <tr>
+              <td class="tdfit">
+                <i class="material-icons">map</i>
+                <input id="wtshare-map" type="checkbox"/>
+              </td><td>
+                <label for="wtshare-map">
+                  Check to include your current background map name (<span id="wtshare-map-name"></span>) in the shared link,
+                  so that recipient will get the same visualization of your track as you.
+                </label>
+                <span id="sharemaptxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+                <br/>
+                <span id="sharemaptxt-help" class="help-p">
+                  Note that the map has to be configured and not disabled on your recipient side.
+                  If your current background map is a result of a personal setting,
+                  you will need to share this setting using the <a href="./maps.html">Map Editor</a>.
+                </span>
+              </td>
+            </tr>
+            <tr class="if-encrypt hidden">
+              <td class="tdfit">
+                <i class="material-icons">security</i>
+                <input id="wtshare-enc" type="checkbox"/>
+              </td><td>
+                <label for="wtshare-enc">Check to encrypt your track on the cloud for enhanced privacy</label>
+                <span id="shareenctxt" class="help-b material-icons" title="Help">&#xE8FD;</span>
+                <br/>
+                <span id="shareenctxt-help" class="help-p">
+                  If checked your track will be encrypted in your browser before being sent and saved in the cloud.
+                  The decryption key will be included in the shareable link you will be provided.
+                  The encrypted track cannot be decrypted without this link.
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <button id="wtshare-start" class="ok-btn">Continue</button>
+        <button id="wtshare-cancel" class="cancel-btn">Cancel</button>
+      </div>
+      <div id="wtshare-processing">
+        <p>Uploading, please wait...</p>
+        <div id="wtshare-spinner" class="spinner">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+        </div>
+      </div>
+      <div id="wtshare-done">
+        <div id="wtshare-links">
+          <p>Here is the link to your track, copy and share it.</p>
+          <p>
+            <i class="material-icons copyonclick" title="Copy link" id="-wtshare-val">filter_none</i>
+            <input id="wtshare-val" type="text" size="50" value="" readonly="readonly" />
+            <a href="#" id="wtshare-viewqr" title="View link as QR Code"><img src='img/qrcode.png' alt='QRCode'></a>
+          </p>
+          <p>
+            <span class="wtshare-item"><a href="#" id="wtshare-open">
+              <i class="material-icons">open_in_new</i> Open that link</a>
+            </span>
+            <span class="hide-on-small-screen">&nbsp;|&nbsp;</span>
+            <span class="wtshare-item">
+              <a href="#" id="wtshare-view" target="_blank"><i class="material-icons">cloud</i> View cloud storage</a>
+            </span>
+          </p>
+        </div>
+        <div id="wtshare-qrcode">
+          <a id="wtshare-back" href="#"><i class="material-icons">arrow_back</i></a>
+          <p>Scan the QR Code below with your mobile to open the track:</p>
+          <img id="wtshare-qrimg" src="#" alt="QR Code to be scanned"/>
+        </div>
+        <button id="wtshare-ok" class="ok-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt box -->
+  <div id="save-info" class= "modal overlay">
+    <!-- Modal content -->
+    <div class="prompt-content">
+      <div class="prompt-title">Save status between sessions</div>
+      <div>
+        <p>WTracks can store IN YOUR BROWSER (none of your data is stored on our server) the status of your editor session, so that next time your reopen the editor it restores your preferences and latest edited track.</p>
+        <p>In order to protect your privacy, this option should only be set if you are using a personal device. This option can be (de)activated at any moment in the "Settings" menu.</p>
+        <p>Would you like to activate saving of the status now?</p>
+      </div>
+      <div class="prompt-buttons">
+        <button id="save-yes">Yes</button>
+        <button id="save-no">No</button>
+      </div>
+    </div>
+  </div>
+
+  <table id="tdisplay">
+    <tr id="menu-bar">
+      <td colspan="7">
+        <a href="#" id="menu-button" title="menu (m)" class="button"><span class="material-icons">&#xE5D2;</span></a>
+        <span id="track-name-edit" class="link">
+          <span class="title" id="track-name"></span>
+          <span class="material-icons symbol" title="Edit track details (F2)">&#xE3C9;</span>
+        </span>
+        <div id="status">
+          <div id="spinner" class="spinner">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+          </div>
+          <span id="status-msg"></span>
+        </div>
+      </td>
+    </tr>
+    <tr id="map-row">
+      <td id="map" colspan="7"></td>
+    </tr>
+    <tr class="statistics" title="Click to see elevation profile">
+      <th><span class="hide-medium">Distance</span><span class="material-icons show-medium">&#xE41C;</span></th>
+      <td title='One Way'>
+        <span class="material-icons symbol">&#xE31C;</span> <span id="distow"></span>
+      </td>
+      <td title='Round Trip'>
+        <span class="material-icons symbol">&#xE041;</span> <span id="distrt"></span>
+      </td>
+      <th><span class="hide-medium">Alt. Max</span><span class="material-icons show-medium">&#xE25A;</span></th>
+      <td>
+        &#9650; <span id="altmax"></span>
+      </td>
+      <th class="hide-medium">Climbing</th>
+      <td id="climbing"></td>
+    </tr>
+    <tr class="statistics" title="Click to see elevation profile">
+      <th>
+        <span class="hide-medium">Time</span><span class="show-medium material-icons">&#xE422;</span>
+        <select id="activity" size="1"></select>
+        <a href="activities.html" title="Edit activites">
+          <span class="material-icons symbol link">&#xE3C9;</span>
+        </a>
+      </th>
+      <td title='One Way'>
+        <span id="timeow"></span>
+      </td>
+      <td title='Round Trip'>
+        <span id="timert"></span>
+      </td>
+      <th><span class="hide-medium">Alt. Min</span><span class="material-icons show-medium">&#xE258;</span></th>
+      <td>
+        &#9660; <span id="altmin"></span>
+      </td>
+      <th class="hide-medium">Descent</th>
+      <td id="descent">
+      </td>
+    </tr>
+  </table>
+  <div id="scale-ctrl-help">
+    <i class="material-icons symbol">arrow_downward</i>
+    Click to switch between metric and imperial units (u)
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/wtracks-commons.js"></script>
+  <script src="js/wtracks.js"></script>
+</body>
+
+</html>

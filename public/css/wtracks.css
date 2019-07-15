@@ -1,0 +1,867 @@
+html, body {
+  height:100%;
+  margin:0;
+  width:100%;
+}
+body {
+  margin:0;
+  padding:0;
+  font-family: sans-serif;
+}
+
+#tdisplay {
+  width: 100%;
+  height: 100%;
+  border-spacing: 0;
+}
+
+#map-row {
+  width:100%;
+  height: 100%;
+}
+#map-row td {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+}
+
+.gh-credit {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  padding: 0 5px;
+  background: #efefef;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+#menu-bar {
+  margin: 0;
+  background-color: #ddd;
+  vertical-align: middle;
+  padding: 2px 5px;
+  font-size: 14pt;
+}
+
+#track-name-edit {
+  position: absolute;
+  width: 85%;
+}
+
+.title {
+  font-weight: bold;
+  display: inline-block;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: inherit;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  max-width: 90%;
+  max-height: 1em;
+}
+
+.hidden {
+  display: none
+}
+
+#menu {
+  max-width: 90%;
+  width: 500px;
+  background: #eee;
+  border: 1px solid black;
+  position: fixed;
+  left: 5px;
+  top: 30px;
+  display: none;
+  z-index: 10000;
+  padding: 10px 10px 0 10px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.box-header {
+  text-align: right;
+  width: 100%;
+  margin: 0 !important;
+}
+#menu table {
+  margin: 0 0 10px 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+#menu tr {
+  border: 1px solid #CCC;
+}
+#menu tr.nobottomborder {
+  border-bottom: none;
+}
+#menu tr.notopborder {
+  border-top: none;
+}
+#menu th {
+  background-color: #BBB;
+  cursor: pointer;
+}
+#menu td {
+  padding: 5px;
+  max-width: 550px;
+}
+/*#menu td label {
+  font-size: 10pt;
+}*/
+#menu tx:first-child {
+  border-top: 0;
+}
+#menu td:first-child {
+  vertical-align: top;
+}
+#menufile td:first-child {
+  min-width: 80px;
+}
+#menu td:first-child button {
+  width: 100%
+}
+#menu td:nth-child(2) {
+  padding-right: 10px;
+}
+#track-get-url {
+  width:95%;
+}
+#about-logo {
+  margin: 15px 5px;
+}
+#github-logo {
+  float: left;
+  margin: -3px 10px 0 0;
+}
+#menuabout a:link, #menuabout a:visited,
+#wtshare-ask a:link, #wtshare-ask a:visited,
+#wtshare-done a:link, #wtshare-done a:visited,
+.text a:link, .text a:visited,
+.help-p a:link, .help-p a:visited {
+  text-decoration: none;
+  color: #1992ca;
+}
+#wtshare-map-name {
+  font-style: italic;
+}
+
+.fold-link,
+.fold-file-closed,
+.fold-settings-closed {
+  color: #1992ca;
+  cursor: pointer;
+}
+.fold-selected {
+  color: #000;
+  cursor: default;
+}
+.fold-selected-title {
+  background-color: #CCC;
+}
+
+.setting-name {
+  width: 110px;
+  display: inline-block;
+}
+.setting-value {
+  margin-left: 5px;
+  width: 100px;
+}
+.setting-input {
+  margin-left: 5px;
+  width: 180px;
+}
+
+.help-p {
+  display: none;
+  font-style: oblique;
+  margin: 2px 0 5px 0;
+  font-size: 90%;
+  max-width: 500px;
+}
+
+.help-b {
+  margin-left: 10px;
+  font-size: 20px;
+  color: #575757;
+}
+#mymap-box .help-b {
+  margin-left: 0;
+}
+.mymap-name {
+  font-style: italic;
+}
+
+#dropbox-chooser, #dropbox-saver {
+  font-size: 11px;
+  padding-right: 0;
+  padding-left: 0;
+}
+.dropbox-logo {
+  display: inline-block;
+  width: 15px;
+  height: 14px;
+  vertical-align: bottom;
+  margin: 0 2px 0 0;
+  background: transparent url('https://www.dropbox.com/static/images/widgets/dbx-saver-status.png') no-repeat;
+  position: relative;
+  /*top: 2px;*/
+}
+
+/* Style the list */
+ul.menutab {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #eee;
+}
+
+/* Float the list items side by side */
+ul.menutab li {
+  float: left;
+  border: 1px solid #ccc;
+  border-radius: 10px 10px 0 0;
+}
+
+/* Style the links inside the list items */
+ul.menutab li a {
+    display: inline-block;
+    color: black;
+    text-align: center;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 14px;
+    border-radius: 9px 9px 0 0;
+}
+
+/* Change background color of links on hover */
+ul.menutab li a:hover {background-color: #ddd;}
+
+/* Create an active/current tablink class */
+ul.menutab li a:focus, .active {background-color: #ccc;}
+
+a.button {
+  text-decoration: none;
+  color: black;
+  margin: 0 10px;
+}
+
+.close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 7px 0 0;
+  border: none;
+  text-align: center;
+  width: 18px;
+  height: 14px;
+  font: 16px/14px Tahoma, Verdana, sans-serif;
+  color: #c3c3c3;
+  text-decoration: none;
+  font-weight: bold;
+  background: transparent;
+}
+.close-button:hover {
+  color: #999;
+  cursor: pointer;
+}
+.prompt-content .close-button {
+  position: inherit;
+  float: right;
+  padding: 0;
+}
+#wtshare-ask table td:first-child {
+  text-align: center;
+  padding: 0;
+  vertical-align: middle;
+}
+#wtshare-links input {
+  width: 85%;
+}
+.wtshare-item .material-icons  {
+  color: black;
+}
+#wtshare-viewqr {
+  float: right;
+  padding-top: 3px;
+}
+#wtshare-qrimg {
+  display: block;
+  margin: 0 auto 10px auto;
+  outline: 1px solid #FFF;
+  box-shadow: 0px 0px 10px 10px #FFF;
+}
+.if-encrypt {
+  margin-bottom: 10px;
+}
+.text-bottom {
+  vertical-align: bottom;
+}
+.symbol {
+  font-size: 16px;
+}
+.link {
+  cursor: pointer;
+}
+
+.red {
+  color: red;
+}
+
+.highlight{
+	animation:yellowBlink 1s infinite;
+}
+@keyframes yellowBlink {
+	0%{		background-color: #f4f3b5;	}
+	25%{	background-color: #f7f583;	}
+	50%{	background-color: #fffa00;	}
+	75%{	background-color: #f7f583;	}
+	100%{	background-color: #f4f3b5;	}
+}
+
+.leaflet-bar {
+  font-size: 16pt;
+}
+.leaflet-container a {
+  text-decoration: none;
+}
+#edit-tools {
+  background-color: #FFF;
+  z-index: 10000;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+#edit-tools a {
+  text-decoration: none;
+  color: #444;
+  background-color: white;
+}
+#edit-tools a:hover {
+  background-color: #EEE;
+}
+.leaflet-control-edit > a {
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    border-bottom: none;
+    border-bottom: 1px solid #ccc;
+}
+.control-selected {
+  background-color: #ffff99 !important;
+}
+.wtracks-control-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-block;
+  border-radius: 4px;
+  margin: auto;
+  position: relative;
+}
+.segment-icon {
+  margin-top: -8px;
+  font-size: 18px;
+}
+.add-segment-icon {
+  font-size: 18px;
+  margin-left: -26px;
+  color: green;
+  margin-top: 10px;
+}
+.delete-segment-icon {
+  font-size: 18px;
+  margin-left: -26px;
+  color: red;
+  margin-top: 10px;
+}
+
+.leaflet-default-icon-path {
+	background-image: url(../img/marker-icon.png);
+}
+.leaflet-bar,.leaflet-control-geosearch {
+  font-size: inherit;
+}
+.leaflet-control-geosearch input {
+  font-size: 14px;
+}
+.material-icons {
+  vertical-align: middle;
+}
+.toggle .material-icons {
+  font-size: 20px;
+}
+
+.leaflet-control-layers-base .material-icons {
+  font-size: 18px;
+  color: #777;
+}
+
+.popupdiv {
+  margin: 5px 0;
+}
+.popupfield {
+  width: 55px;
+  display: inline-table;
+  vertical-align: middle;
+}
+.atlInput {
+  width: 3em;
+}
+.popupdiv a {
+  padding: 5px;
+}
+.ptbtn {
+  display: inline-table;
+  text-align: center;
+}
+.ptbtn a {
+  color: black;
+}
+.popup-nameinput {
+  width: 210px;
+}
+.popup-descinput {
+  width: 285px;
+  height: 120px;
+}
+.popup-name {
+  font-weight: bold;
+}
+.popup-desc {
+  max-height: 10em;
+  overflow: auto;
+  font-family: "Helvetica Neue",Arial,Helvetica,sans-serif;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.popup-desc p, .trumbowyg-editor p {
+    margin: 0 0 6px 0;
+}
+
+#scale-ctrl-help {
+  display: none;
+  position: absolute;
+  bottom: 70px;
+  left: 10px;
+  z-index: 1000;
+  padding: 0 10px;
+  background: #fff;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.rich-text {
+  vertical-align: middle;
+}
+div.trumbowyg-editor {
+  padding: 5px;
+}
+
+#status {
+  float: right;
+  margin: 0 10px 0 0;
+  display: block;
+  position: fixed;
+  padding-left: 20px;
+  top: 3px;
+  right: 0;
+  background: #ddd;
+}
+#status-msg{
+}
+.status-info{
+  color: black;
+}
+.status-error{
+  color: red;
+}
+
+/* ---------------- spinner -------------- */
+.spinner {
+  margin: 100px auto 0;
+  width: 70px;
+  text-align: center;
+  display: inline;
+}
+
+.spinner > div {
+  width: 14px;
+  height: 14px;
+  background-color: #333;
+
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+  }
+}
+/* --------------------------------------- */
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 15000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.2); /* Black w/ opacity */
+}
+/* Modal Content/Box */
+.prompt-content {
+  background-color: #eee;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 2px solid #333;
+  width: 80%; /* Could be more or less, depending on screen size */
+  border-radius: 10px;
+  box-shadow: 0 0 10px 10px rgba(237,237,237,1);
+  max-width: 500px;
+}
+.prompt-content table {
+  width: 100%;
+}
+.prompt-content table th {
+  padding-bottom: 15px;
+}
+.prompt-content table td:first-child {
+  text-align: right;
+  vertical-align: top;
+  padding-top: 5px;
+  min-width: 75px;
+}
+.prompt-content input[type=text], .prompt-content textarea  {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: sans-serif;
+  font-size: 100%;
+}
+#export-val {
+  width: 90%;
+}
+
+/* ------------ draggable map list ------------ */
+
+.container{
+  margin: 10px;
+}
+
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
+
+#mymaps-list {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#mymaps-list li {
+  width: fit-content;
+  padding: 3px 0;
+  text-align: left;
+  border-top: 2px solid white;
+  user-select: none;
+}
+#mymaps-list li .map-item {
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+  border-radius: 10px;
+  border: 2px solid #666666;
+  background: #c8ffc1;
+}
+.map-invisible {
+  background: #D4D4D4 !important;
+}
+.map-drag, .map-name {
+  cursor: move;
+  vertical-align: middle;
+}
+.map-name {
+  width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  user-select: text;
+}
+.map-edit, .map-delete, .map-share, .map-visibility {
+  cursor: pointer;
+  margin-left: 10px;
+  padding-bottom: 4px;
+}
+
+.maps-btns button {
+  width: auto;
+}
+
+#import-list td {
+  padding: 0 2px;
+  min-width: 0;
+}
+#import-list {
+  margin-bottom: 1em;
+}
+
+#footer {
+  margin-top: 2em;
+}
+
+.btn-link {
+  padding: 4px 7px 0 0;
+  border: none;
+  width: 18px;
+  height: 14px;
+  font: 16px/14px Tahoma, Verdana, sans-serif;
+  color: #c3c3c3;
+  text-decoration: none;
+  font-weight: bold;
+  background: transparent;
+  text-align: left;
+}
+.btn-link:hover {
+  color: #999;
+}
+
+/* ---------------------------------- */
+
+
+#mymap-minz, #mymap-maxz, #mymapbox input[name=mymap-type] {
+  width: auto;
+}
+#mymap-padding {
+  margin: 0 4px;
+}
+input.invalid {
+  border: 2px solid #FF0000 !important;
+  background-color: #FFCEC1 !important;
+}
+input.invalid:focus {
+  box-shadow: 0 0 2px 2px #FF0000;
+}
+
+.mapstg-toggle .material-icons {
+  padding: 0 10px;
+}
+.prompt-content textarea {
+  height: 60px;
+}
+.prompt-content button {
+  padding: 5px 10px;
+  margin-top: 10px;
+  width: 80px;
+}
+.ok-btn {
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: 10px;
+}
+.cancel-btn {
+  margin-right: auto;
+}
+.prompt-title {
+  padding-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+.prompt-buttons {
+  padding-bottom: 15px;
+  font-weight: bold;
+  text-align: center;
+}
+
+button:active, button:focus,
+input:active, input:focus,
+select:active, select:focus,
+textarea:focus,
+#track-upload-label:active,
+#state-load-label:active {
+  outline: 1px solid #B0CBDE;
+  box-shadow: 0 0 2px 2px #B0CBDE;
+}
+
+/* ---------------------------------------------------- */
+
+.credits {
+  text-align: right;
+  font-style: italic;
+  margin: 10px;
+  font-size: 80%;
+}
+
+button,
+#track-upload-label,
+#state-load-label {
+  border: 1px solid #777;
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin: 2px;
+  background: #E4E4E4;
+  display: inline-block;
+  font-size: 13px;
+  width: 82%;
+  text-align: center;
+}
+button:hover,
+#track-upload-label:hover,
+#state-load-label:hover {
+  background: #C7E0F1;
+}
+button:active,
+#track-upload-label:active,
+#state-load-label:active {
+  background: #B0CBDE;
+}
+#track-upload,
+#load-state-file {
+   opacity: 0;
+   position: absolute;
+   z-index: -1;
+}
+.state-file {
+  width: 100px !important;
+}
+.state-file.disabled-button,
+.state-file.disabled-button:hover,
+.state-file.disabled-button:active
+{
+  color: graytext !important;
+  background: #E4E4E4 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+.toggle-hidden {
+    display: none;
+}
+/* --------------------- Statistics ---------------------- */
+
+.statistics th, .statistics td {
+  border: 1px solid rgb(153, 153, 153);
+  min-width: 30px;
+  padding: 0 5px;
+}
+.statistics th {
+  text-align: right;
+  background-color: #DDD;
+  font: inherit;
+  font-weight: bold;
+}
+.statistics td {
+  text-align: center;
+}
+.show-medium {
+   display: none;
+}
+
+#activity {
+  text-align: right;
+}
+.statistics a:hover, .statistics a:visited, .statistics a:link, .statistics a:active
+{
+    text-decoration: none;
+    color: black;
+}
+/* for 680px or less */
+@media screen and (max-width: 680px) {
+  .title {
+    font-size: 90%;
+  }
+  .hide-medium {
+     display: none;
+  }
+  .show-medium {
+     display: initial;
+  }
+  .statistics tr {
+    line-height: 18px;
+  }
+  .elevation {
+    position: fixed;
+    bottom: 75px;
+    right: 0;
+  }
+
+  .unit {
+    font-size: 80%;
+  }
+  .unit-space {
+    font-size: 10%;
+  }
+
+}
+
+/* for 480px or less */
+@media screen and (max-width: 480px) {
+  .title {
+    max-width: 80%;
+  }
+  .wtshare-item {
+    margin-bottom: 10px;
+    display: block;
+  }
+  #wtshare-links input {
+    width: 80%;
+  }
+  .statistics th {
+    display: none;
+  }
+  .hide-on-small-screen {
+    display: none;
+  }
+  .statistics th, .statistics td {
+    /*font-size: 90%;*/
+  }
+  .hide-medium, .show-medium {
+     display: none;
+  }
+  #menu {
+    left: 5px;
+    top: 5px;
+  }
+  #trim-txt {
+    font-size: 10px;
+  }
+  #join, #segment-new {
+    font-size: 60%;
+  }
+  .map-name {
+    width: 135px;
+  }
+}
+
+/** hide routing and file controls **/
+.leaflet-control-container .leaflet-routing-container-hide, .leaflet-control-filelayer {
+    display: none;
+}
